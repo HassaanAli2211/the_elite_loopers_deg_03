@@ -7,6 +7,7 @@
  | Wajeeh Ul Hasan | wajeeh.hassan@xloopdigital.com|
  | Muhammad Abdullah | mohammad.abdullah@xloopdigital.com|
  | Saif Ur Rehman Shuja | saif.rehman@xloopdigital.com|
+ | Muhammad Huzaifa Imtiaz| mohammad.huzaifa@xloopdigital.com|
 
  ## Contributions
  
