@@ -5,6 +5,7 @@
  |-|-|
  | Hassaan | hassaan.ali@xloopdigital.com |
  | Wajeeh Ul Hasan | wajeeh.hassan@xloopdigital.com|
+ | Muhammad Abdullah | mohammad.abdullah@xloopdigital.com|
 
  ## Contributions
  
