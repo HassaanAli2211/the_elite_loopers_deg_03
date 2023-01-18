@@ -6,13 +6,12 @@
  | Hassaan | hassaan.ali@xloopdigital.com |
  | Wajeeh Ul Hasan | wajeeh.hassan@xloopdigital.com|
  | Muhammad Abdullah | mohammad.abdullah@xloopdigital.com|
+ | Saif Ur Rehman Shuja | saif.rehman@xloopdigital.com|
 
  ## Contributions
  
  ### Hassaan Ali & Muhammad Abdullah
  We Worked on Git repo and readme
 
- ### Muhammad Huzaifa and Wajeeh Ul Hasan
-   
-
- ### Saif Ur Rehman Shuja and Muhammad Asim
+ ### Muhammad Huzaifa, Wajeeh Ul Hasan, Saif Ur Rehman Shuja and Muhammad Asim
+ We worked on Business Idea and PPT preparation
