@@ -1,2 +1,2 @@
-# The-ETL-Elite-DEG-03
+# The-Elite-Loopers-DEG-03
 Capstone Project
