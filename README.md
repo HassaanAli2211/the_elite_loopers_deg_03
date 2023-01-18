@@ -14,4 +14,4 @@
  We Worked on Git repo and readme
 
  ### Muhammad Huzaifa, Wajeeh Ul Hasan, Saif Ur Rehman Shuja and Muhammad Asim
- We worked on Business Idea and PPT preparation
+ We worked on Capstone Project Business Idea and PPT preparation
