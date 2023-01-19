@@ -8,11 +8,7 @@
  | Muhammad Abdullah | mohammad.abdullah@xloopdigital.com|
  | Saif Ur Rehman Shuja | saif.rehman@xloopdigital.com|
  | Muhammad Huzaifa Imtiaz| mohammad.huzaifa@xloopdigital.com|
+ | Muhammad Asim| mohammad.asim@xloopdigital.com|
 
  ## Contributions
  
- ### Hassaan Ali & Muhammad Abdullah
- We Worked on Git repo and readme
-
- ### Muhammad Huzaifa, Wajeeh Ul Hasan, Saif Ur Rehman Shuja and Muhammad Asim
- We worked on Capstone Project Business Idea and PPT preparation
