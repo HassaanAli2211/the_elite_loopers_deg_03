@@ -1,0 +1,36 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.1.0
+    hooks:
+    -   id: check-yaml
+    -   id: trailing-whitespace
+-   repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+    -   id: black
+        exclude: ^tasks/1_introduction/day_4_good_software_engineering_practices/handson
+-   repo: https://github.com/hadialqattan/pycln
+    rev: v1.3.5
+    hooks:
+    -   id: pycln
+        args: ["-a"]
+        exclude: ^tasks/1_introduction/day_4_good_software_engineering_practices/handson|^solutions/6_writing_robust_readable_and_maintainable_code/day_4_part_2_security/documentation/docs/source/conf.py|4_data_pipelines/day_5_IaC/hands-on/glue/employee_salary_job.py
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.981
+    hooks:
+    -   id: mypy
+        additional_dependencies: ["types-requests==2.27.13", "types-redis==4.2.6"]
+        exclude: ^tasks/1_introduction/(day_2_basic_tooling/github_actions/test.py|day_4_good_software_engineering_practices/handson)|tasks/6_writing_robust_readable_and_maintainable_code/day_3_testing/tasks|day_4_part_2_security|4_data_pipelines/day_5_IaC/hands-on/|4_data_pipelines/day_1_introduction/hands-on/|tasks/4_data_pipelines/day_2_aws_etl
+-   repo: https://github.com/asottile/seed-isort-config
+    rev: v2.2.0
+    hooks:
+    -   id: seed-isort-config
+        name: seed-isort
+        args: [--exclude=tasks/1_introduction/day_4_good_software_engineering_practices/handson/.*|.*/4_data_pipelines/day_5_IaC/hands-on/.*|solutions/6_writing_robust_readable_and_maintainable_code/day_4_part_2_security/documentation/.*]
+-   repo: https://github.com/psf/black
+    rev: 22.3.0
+    hooks:
+    -   id: black
+        exclude: ^tasks/1_introduction/day_4_good_software_engineering_practices/handson #those files are broken on purpose
+    -   id: black-jupyter
+        exclude: ^tasks/1_introduction/day_4_good_software_engineering_practices/handson #those files are broken on purpose
