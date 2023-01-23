@@ -1,7 +1,7 @@
 # The-Elite-Loopers-DEG-03    Capstone Project
 
 ## Team Members
- | Name  | Email | 
+ | Name  | Email |
  |-|-|
  | Hassaan | hassaan.ali@xloopdigital.com |
  | Wajeeh Ul Hasan | wajeeh.hassan@xloopdigital.com|
@@ -11,4 +11,4 @@
  | Muhammad Asim| mohammad.asim@xloopdigital.com|
 
  ## Contributions
- 
+
