@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  etlservice:
+    build: 
+      context: etlservice
+    ports:
+      - "8000:8000" 
+  
+  sensorsmock:
+    build:
+      context: sensors
+    ports:
+      - "3000:3000"
+    environment:
+      - SMART_THERMO_BUCKET=alybuckett
+      - MOISTURE_MATE_URL=http://etlservice:8000/api/moisturemate
+      - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
+      - AWS_ACCESS_KEY_ID=ASIAWFKO6P5QZKMVKVBA
+      - AWS_SECRET_ACCESS_KEY=KZZRZwCoTnnHICJ+UU8qUI3TMLemDZPHYKYDgcWO
+      - AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEBIaDGV1LWNlbnRyYWwtMSJHMEUCID0RT6YU6l6ERE4W8nG4TN8xtHupysSUZuUpB1+ottmDAiEA1KllQMTjWSfmpoXYt6Ox7R0BYZrAn2AuAOP3glbTmlIq9AEIi///////////ARAAGgw0MjM3NTY3MjYxMTMiDMGrf8wFuv5XAF4JHirIATbD9VxxxpRwgDiGH9YUm7aRNqqv/FU6JG0yBnCLuEamgPskhLgM9Xy4sQeImckEjIhjm95I8Ztei8Letx4Njf0Tmm8aBOZpkgXs1sqAV2l2wwqcIoYywGyUhT8UMIEUm9OjlagPwRb1V232FYEqzC2JGF1C1dpo8yFx7ds9Sn1XpBfAZ7YCsisVwNltG4rtWILYhmrXujUKmliHkeN/Cypo+lsFkZ0MYRiazF2/79ZxHydwxe83lTUysxUPsWOIjooScSo4nssmMMar3p4GOpgBDjWA2JzUwRuWirIEczNVQO5eqFWnPyy/UKXAS59wwwdt33Y7cfuZrBoA8pVw8Hl6XiHdC6o1+xlp55Hu8QYlDr8P3hKG+8vN+fVtkYEVQ+s+vapybzXR6rI/AiomIW4GkKt7muuhK11uQxBPUYrOUyssArZ4UH5FIIY2voXxRvyYYLPr6BptmdD19LD6GygQRPEqIDuIES8=
