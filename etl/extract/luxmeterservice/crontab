@@ -1,0 +1,1 @@
+* * * * * /usr/local/bin/python /app/luxmeter_service.py >> /var/log/luxmeter_service.log 2>&1
