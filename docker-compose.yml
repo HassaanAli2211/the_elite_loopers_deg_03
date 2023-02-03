@@ -1,8 +1,8 @@
 version: "3.9"
 services:
-  etlservice:
+  moisturecarbonservice:
     build: 
-      context: moisture_carbon_service
+      context: moisturecarbonservice
     ports:
       - "8000:8000" 
   
@@ -13,7 +13,7 @@ services:
       - "3000:3000"
     environment:
       - SMART_THERMO_BUCKET=alybuckett
-      - MOISTURE_MATE_URL=http://etlservice:8000/api/moisturemate
-      - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
+      - MOISTURE_MATE_URL=http://moisturecarbonservice:8000/api/moisturemate
+      - CARBON_SENSE_URL=http://moisturecarbonservice/api/carbonsense
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
