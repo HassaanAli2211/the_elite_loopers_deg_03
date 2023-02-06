@@ -1,33 +1,29 @@
-import requests
-import os
-import json
-import pandas as pd
 import logging
-from kafka import KafkaProducer
-
-# producer = KafkaProducer(
-#     bootstrap_servers=[producer_server_url],
-#     value_serializer=lambda x: x.encode("utf-8")
-#     )
-
+from fastapi import FastAPI
+import uvicorn
+import requests
+from fastapi_utils.tasks import repeat_every
+app = FastAPI()
 logger = logging.getLogger()
-
-producer = KafkaProducer(
-    bootstrap_servers="broker:9093",
-    acks=1,
-    value_serializer=lambda v: json.dumps(v, default=str).encode("ascii"),
-)
-
-
+ 
+ 
 room_id = ["kitchen", "bedroom", "bathroom", "living_room"]
-url_template = "http://sensor:3000/api/luxmeter/{}"
 
-results = []
-for room in room_id:
-    url = url_template.format(room)
-    response = requests.get(url)
-    results.append(response.text)
-producer.send(os.environ["KAFKA_TOPIC"], value={"record": results})
-producer.flush()
+@app.on_event("startup")
+@repeat_every(seconds=60, wait_first=True)
+def lux_data():
+    for rooms in room_id:
+        url_template = f"http://sensorsmock:3000/api/luxmeter/{rooms}"
+        response = requests.get(url_template).json()
+        Updated_respose = dict((k, response[k]) for k in ['measurements']
+           if k in response)['measurements'][-1]
+        response['measurements'] = Updated_respose
+        logger.info(f"Received LuxMeter data:{Updated_respose}")
 
-logger.info(f"luxmeter: {results}")
+def run_app():
+    logging.basicConfig(level=logging.INFO)
+    uvicorn.run(app, host="0.0.0.0", port=3001)
+if __name__ == "__main__":
+    run_app()
+
+
