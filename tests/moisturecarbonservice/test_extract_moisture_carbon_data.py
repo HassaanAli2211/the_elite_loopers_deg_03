@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 
-from caps.etlservice.extract_moisture_carbon_data import app
+from caps.moisturecarbonservice.extract_moisture_carbon_data import app
 
 client = TestClient(app)
 
