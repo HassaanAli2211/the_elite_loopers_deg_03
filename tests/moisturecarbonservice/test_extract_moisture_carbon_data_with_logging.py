@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from fastapi.testclient import TestClient
 
-from caps.moisturecarbonservice.extract_moisture_carbon_data import app
+from etl.extract.moisturecarbonservice.extract_moisture_carbon_data import app
 
 client = TestClient(app)
 
@@ -32,4 +32,4 @@ class TestExample(TestCase):
         self.assertEqual(
             captured.records[0].getMessage(),
             "carbonsense: {'test_key': 'test_value'}",
-        )    
+        )
