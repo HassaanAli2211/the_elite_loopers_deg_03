@@ -1,0 +1,99 @@
+version: "3.9"
+services:
+  sensorsmock:
+    build:
+      context: sensors
+    ports:
+      - "3000:3000"
+
+  # lux_meter:
+  #   build:
+  #     context: luxmeterservice
+  #   container_name: lux_meter
+  #   ports:
+  #     - "3007:3007"
+  #   environment:
+  #     KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  #   depends_on:
+  #     - broker
+   
+    # depends_on:
+    #   -  moisturecarbonservice
+    # environment:
+    #   - SMART_THERMO_BUCKET=the-elite-loopers
+    #   - MOISTURE_MATE_URL=http://0.0.0.0:8000/api/moisturemate
+    #   - CARBON_SENSE_URL=http://0.0.0.0:8000/api/carbonsense
+  
+  moisturecarbonservice:
+    build: 
+      context: moisturecarbonservice
+    ports:
+      - "8000:8000" 
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "broker:29092"
+      depends_on:
+        sensorsmock
+      restart: always
+
+      # - AWS_ACCESS_KEY_ID=ASIAZWGXMF5IBLLMHGTY
+      # - AWS_SECRET_ACCESS_KEY=BbHDbflpIZcyJ7ZHGw925kEuZoRSjIXQqOOc5AP9
+      # - AWS_SESSION_TOKEN=IQoJb3JpZ2luX2VjEFoaDGV1LWNlbnRyYWwtMSJHMEUCIQDjgEoD5wEmFZ9v8C6UKGH06spYy2yL8KFIhmpCfxcpGQIgOKZ2/8BjWcxirjWYjcvM3OkC/cARho1GpVKKBf1Z9FQq9AEI0///////////ARACGgw2NjYxNzE2MTcxMDQiDNnDQ3WhuKiocxyB9irIAShXE0PGKz3Nny6bBCbeCptzOgvpDq/YmTbPg0UAqFSrk5Hxy/NdAESWKsl7r4w/dd2AdTCxu1uBvRDb+PViG4vDnVomYu/W+enGBMVLDX2A3c7LeE2ZeJfMeFzNomzzy5sv36gSabYtyxWieSL9Oev+atd+fXYHYUOSOyHJ+d3pAT21Ed+ojTRSiR020XzeASDLnWIhAXwY/B2a8HRWxLy+bN22kbxnKzinGoXyG5pBzyagPyqDAT2q/4g5u5M6pZTb93GCsHNSMISN7p4GOpgBRqHD99XoaVfL2q9Qlw4i2u4gkp12AEC44GDWpQSYIrHQ67zNSjPX3+rjwna+lvbgk53eBgmZEnfVm2F9ymmpZjceJJeJThXy8aPZ9WF5ab8vDPh2bz4F32JpA3cuSjXdhhMIUuxElpba52cX4EGRBkGlWv3+oznXhnf0NeVkNlS7pWDG6wqaPrUvFtcGwoGK+x9/Qff1m78=
+  lux_meter:
+    build: 
+      context: luxmeterservice
+    container_name: lux_meter
+    ports:
+      - "3007:3007"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: "broker:29092"
+    depends_on:
+      - sensorsmock
+    restart: always
+
+   
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker: 
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: broker
+    ports:
+      - "9093:9093"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9093,PLAINTEXT_INTERNAL://broker:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    restart: always
+
+  init-kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      - broker
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+      
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic moisturemate --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic carbonsense --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic luxmeter --replication-factor 1 --partitions 1
+      
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server broker:29092 --list
+      "
+
+
+
+ 
