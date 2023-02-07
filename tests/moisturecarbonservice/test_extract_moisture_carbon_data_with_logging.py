@@ -33,3 +33,8 @@ class TestExample(TestCase):
             captured.records[0].getMessage(),
             "carbonsense: {'test_key': 'test_value'}",
         )
+
+def test_invalid_endpoint_response_404():
+    response = client.post("/invalid_endpoint", json={"test_key": "test_value"})
+    assert response.status_code == 404
+
