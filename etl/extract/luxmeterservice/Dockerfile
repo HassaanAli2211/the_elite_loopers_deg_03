@@ -5,4 +5,3 @@ RUN pip3 install -r requirements.txt
 COPY . .
 ENV PYTHONPATH /app
 CMD [ "python3", "luxmeter_service.py"]
-
