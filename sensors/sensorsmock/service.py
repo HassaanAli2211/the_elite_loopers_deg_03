@@ -129,7 +129,8 @@ class SensorService:
         logger.info(
             f"Added new measurements for {date} / occupied room: {self.occupied_room} for {self.change_room_cooldown} minutes"
         )
-
+	
+	time.sleep(15)
         await self.save_smart_thermo(date, new_sample)
         await self.send_moisture_mate(date, new_sample)
         await self.send_carbon_sense(date, new_sample)
