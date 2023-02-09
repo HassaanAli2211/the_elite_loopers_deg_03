@@ -11,4 +11,4 @@ COPY . .
 
 ENV PYTHONPATH /app
 
-CMD [ "python3", "extract_moisture_carbon_data.py"]
+CMD [ "python3", "kafka_extract_moisture_carbon_data.py"]
