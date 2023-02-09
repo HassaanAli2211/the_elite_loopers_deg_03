@@ -7,8 +7,8 @@ services:
     volumes:
       - ./datastore:/data
     environment:
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
+      MINIO_ACCESS_KEY: your_url
+      MINIO_SECRET_KEY: your_url
     command: server /data
 
   createbuckets:
@@ -35,8 +35,8 @@ services:
       - SMART_THERMO_BUCKET=smart-thermo-sensor
       - MOISTURE_MATE_URL=http://etlservice:8000/api/moisturemate
       - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
-      - AWS_ACCESS_KEY_ID=minioadmin
-      - AWS_SECRET_ACCESS_KEY=minioadmin 
+      - AWS_ACCESS_KEY_ID=your_url
+      - AWS_SECRET_ACCESS_KEY=your_url
 
   smart_thermo:
     build:
