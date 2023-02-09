@@ -10,8 +10,8 @@ Setting up the Environment\
 Clone the repository containing the code.\
 Navigate to the directory containing the code.\
 Run the following command to build the docker image:```docker-compose up --build```\
-Then navigate to pyspark service logs using ```docker logs<container-id>```\
-Click on the http://127.0.0.1:8888/lab and upload the notebook, you will find in this directory ```etl/transform/kafka_pyspark_streaming.ipynb``` and run all cells\
+Then navigate to ```pyspark``` service logs using ```docker logs<container-id>```\
+Click on the http://127.0.0.1:8888/lab and upload locate to this directory ```etl/transform/kafka_pyspark_streaming.ipynb``` and upload this notebook to jupyter lab running on docker container and run all cells\
 You will start seeing logs
 
 ## Built With
