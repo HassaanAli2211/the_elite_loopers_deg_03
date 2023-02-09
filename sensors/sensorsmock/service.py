@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import random
+import time
 from csv import DictReader
 from dataclasses import dataclass
 from datetime import datetime
@@ -25,6 +26,9 @@ class Measurement:
 
 class SensorService:
     def __init__(self):
+        self._luxmeter_url = os.environ.get(
+            "LUXMETER_URL", "http://0.0.0.0:3001/api/luxmeter/+{room}"
+        )
         self._moisture_mate_url = os.environ.get(
             "MOISTURE_MATE_URL", "http://0.0.0.0:8000/api/moisturemate"
         )
@@ -34,6 +38,7 @@ class SensorService:
         self._smart_thermo_bucket = os.environ.get("SMART_THERMO_BUCKET")
 
         if None in (
+            self._luxmeter_url,
             self._moisture_mate_url,
             self._carbon_sense_url,
             self._smart_thermo_bucket,
@@ -53,19 +58,19 @@ class SensorService:
     async def start(self):
         asyncio.create_task(self._loop())
 
-    async def save_smart_thermo(self, date: str, sample: Dict[str, Measurement]):
-        df = pd.DataFrame(
-            [
-                {
-                    "timestamp": date,
-                    "room_id": room,
-                    "temperature": measurement.temperature,
-                }
-                for room, measurement in sample.items()
-            ]
-        )
+    # async def save_smart_thermo(self, date: str, sample: Dict[str, Measurement]):
+    #     df = pd.DataFrame(
+    #         [
+    #             {
+    #                 "timestamp": date,
+    #                 "room_id": room,
+    #                 "temperature": measurement.temperature,
+    #             }
+    #             for room, measurement in sample.items()
+    #         ]
+    #     )
 
-        df.to_csv(f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv")
+    #     df.to_csv(f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv")
 
     async def send_moisture_mate(self, date: str, sample: Dict[str, Measurement]):
         for room, measurement in sample.items():
@@ -130,7 +135,8 @@ class SensorService:
             f"Added new measurements for {date} / occupied room: {self.occupied_room} for {self.change_room_cooldown} minutes"
         )
 
-        await self.save_smart_thermo(date, new_sample)
+        time.sleep(15)
+        # await self.save_smart_thermo(date, new_sample)
         await self.send_moisture_mate(date, new_sample)
         await self.send_carbon_sense(date, new_sample)
 
