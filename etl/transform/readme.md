@@ -1,9 +1,9 @@
 # Readme for Spark Streaming and Kafka
-This code demonstrates how to use PySpark to perform a join between two Kafka topics (moisturemate and carbonsense) and write the result to the console.
+This code demonstrates how to use PySpark to perform a join between two Kafka topics (moisturemate and carbonsense) and logs the result to the console.
 
 
 ## Running the Code
--These instructions will help you run this code using docker-compose to set up the environment and dependencies.
+These instructions will help you run this code using docker-compose to set up the environment and dependencies.
 ## Prerequisites
 You need to have docker and "docker-compose" installed on your machine.\
 Setting up the Environment\
