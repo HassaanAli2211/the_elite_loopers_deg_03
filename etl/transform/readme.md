@@ -6,7 +6,7 @@ This code demonstrates how to use PySpark to perform a join between two Kafka to
 These instructions will help you run this code using docker-compose to set up the environment and dependencies.
 ## Prerequisites
 You need to have docker and "docker-compose" installed on your machine.\
-### Setting up the Environment\
+### Setting up the Environment
 Clone the repository containing the code.\
 Navigate to the directory containing the code.\
 Run the following command to build the docker image:```docker-compose up --build```\
