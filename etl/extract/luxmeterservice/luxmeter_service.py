@@ -19,6 +19,7 @@ def lux_data():
     # Loop through each room ID
     for room in room_ids:
         # Build the full URL for the current room
+        # Refference: your last lecture
         url_template=os.environ.get("LUXMETER_URL")
         url= f"{url_template}{room}"
         # Use the requests library to make a GET request to the URL
