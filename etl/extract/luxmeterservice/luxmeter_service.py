@@ -6,9 +6,6 @@ import os
 import requests
 import uvicorn
 import json
-# from kafka import KafkaProducer
-app = FastAPI()
-logger = logging.getLogger()
 # initialize the FastAPI instance
 app = FastAPI()
 # initialize the logger instance
