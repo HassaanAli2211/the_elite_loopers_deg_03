@@ -16,9 +16,9 @@ room_ids = ["kitchen", "bedroom", "bathroom", "living_room"]
 @app.on_event("startup")
 @repeat_every(seconds=60, wait_first=True)
 def lux_data():
+    url_template = os.environ.get("LUXMETER_URL")
 
     for room in room_ids:
-        url_template = os.environ.get("LUXMETER_URL")
         url = f"{url_template}{room}"
         response = requests.get(url).json()
         last_measurement = response["measurements"][-1]
