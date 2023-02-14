@@ -20,4 +20,6 @@ services:
   luxmeter:
     build:
       context: luxmeterservicew
-
+  onemoreservice:
+    build:
+      context: testdir
