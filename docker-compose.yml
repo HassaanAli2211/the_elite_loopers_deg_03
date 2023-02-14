@@ -35,3 +35,13 @@ services:
       - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
       - AWS_ACCESS_KEY_ID=minioadmin
       - AWS_SECRET_ACCESS_KEY=minioadmin
+
+  smart_thermo:
+    build:
+      context: smart_thermo_service
+    container_name: smart_thermo
+    depends_on:
+      - minio
+      - createbuckets
+      - sensorsmock
+    restart: always 
