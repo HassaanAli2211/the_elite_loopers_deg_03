@@ -6,9 +6,6 @@ services:
       - "9000:9000"
     volumes:
       - ./datastore:/data
-    environment:
-      MINIO_ACCESS_KEY: your_url
-      MINIO_SECRET_KEY: your_url
     command: server /data
 
   createbuckets:
@@ -26,6 +23,7 @@ services:
   sensorsmock:
     build:
       context: sensors
+    container_name: sensorsmock
     ports:
       - "3000:3000"
     depends_on:
@@ -35,46 +33,5 @@ services:
       - SMART_THERMO_BUCKET=smart-thermo-sensor
       - MOISTURE_MATE_URL=http://etlservice:8000/api/moisturemate
       - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
-      - AWS_ACCESS_KEY_ID=your_url
-      - AWS_SECRET_ACCESS_KEY=your_url
-
-  smart_thermo:
-    build:
-      context: smart_thermo_service
-    container_name: smart_thermo
-    environment:
-       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
-    depends_on:
-      - kafka 
-      - minio
-      - createbuckets
-      - sensorsmock
-    restart: always 
-
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-
-  kafka:
-    image: confluentinc/cp-kafka:7.0.1
-    container_name: kafka
-    ports:
-      - "9092:9092"
-    depends_on:
-      - zookeeper
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic smart_thermo)&) && /etc/confluent/docker/run "
-    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic carbonsense)&) && /etc/confluent/docker/run "
-    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic moisturemate)&) && /etc/confluent/docker/run "
-    command: sh -c "((sleep 15 && kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic luxmeter)&) && /etc/confluent/docker/run "
-    restart: always
+      - AWS_ACCESS_KEY_ID=minioadmin
+      - AWS_SECRET_ACCESS_KEY=minioadmin
