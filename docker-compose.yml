@@ -17,3 +17,7 @@ services:
       - CARBON_SENSE_URL=http://moisturecarbonservice/api/carbonsense
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
+  luxmeter:
+    build:
+      context: luxmeterservicew
+
