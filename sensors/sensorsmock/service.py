@@ -25,8 +25,12 @@ class Measurement:
 
 class SensorService:
     def __init__(self):
-        self._moisture_mate_url = os.environ.get("MOISTURE_MATE_URL","http://0.0.0.0:8000/api/moisturemate")
-        self._carbon_sense_url = os.environ.get("CARBON_SENSE_URL","http://0.0.0.0:8000/api/carbonsense")
+        self._moisture_mate_url = os.environ.get(
+            "MOISTURE_MATE_URL", "http://0.0.0.0:8000/api/moisturemate"
+        )
+        self._carbon_sense_url = os.environ.get(
+            "CARBON_SENSE_URL", "http://0.0.0.0:8000/api/carbonsense"
+        )
         self._smart_thermo_bucket = os.environ.get("SMART_THERMO_BUCKET")
 
         if None in (
@@ -63,9 +67,7 @@ class SensorService:
 
         df.to_csv(
             f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv",
-            storage_options={
-                "client_kwargs": {"endpoint_url": "http://minio:9000"}
-            }
+            storage_options={"client_kwargs": {"endpoint_url": "http://minio:9000"}},
         )
 
         logger.info(f"Smart_Thermo: {df} sent to Minio Bucket")
@@ -161,4 +163,3 @@ class SensorService:
             del self.data[key]
 
         logger.info(f"Removed keys: {keys_to_remove}")
-
