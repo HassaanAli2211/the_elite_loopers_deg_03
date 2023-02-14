@@ -72,3 +72,14 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     restart: always
+
+  pyspark:
+    image: jupyter/pyspark-notebook
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092      
+    depends_on:
+      - kafka
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/home/jovyan/work/app
