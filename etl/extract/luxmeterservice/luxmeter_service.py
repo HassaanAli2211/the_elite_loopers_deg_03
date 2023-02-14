@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+
 import requests
 import uvicorn
 from fastapi import FastAPI
@@ -17,6 +18,7 @@ producer = KafkaProducer(
 )
 
 room_ids = ["kitchen", "bedroom", "bathroom", "living_room"]
+
 
 @app.on_event("startup")
 @repeat_every(seconds=60, wait_first=True)
