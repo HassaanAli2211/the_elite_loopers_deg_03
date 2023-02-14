@@ -8,10 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
-import boto3
 import httpx
 import pandas as pd
-from minio import Minio
 
 logger = logging.getLogger()
 
@@ -27,12 +25,8 @@ class Measurement:
 
 class SensorService:
     def __init__(self):
-        self._moisture_mate_url = os.environ.get(
-            "MOISTURE_MATE_URL", "http://0.0.0.0:8000/api/moisturemate"
-        )
-        self._carbon_sense_url = os.environ.get(
-            "CARBON_SENSE_URL", "http://0.0.0.0:8000/api/carbonsense"
-        )
+        self._moisture_mate_url = os.environ.get("MOISTURE_MATE_URL","http://0.0.0.0:8000/api/moisturemate")
+        self._carbon_sense_url = os.environ.get("CARBON_SENSE_URL","http://0.0.0.0:8000/api/carbonsense")
         self._smart_thermo_bucket = os.environ.get("SMART_THERMO_BUCKET")
 
         if None in (
@@ -69,8 +63,12 @@ class SensorService:
 
         df.to_csv(
             f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv",
-            storage_options={"client_kwargs": {"endpoint_url": "http://minio:9000"}},
+            storage_options={
+                "client_kwargs": {"endpoint_url": "http://minio:9000"}
+            }
         )
+
+        logger.info(f"Smart_Thermo: {df} sent to Minio Bucket")
 
     async def send_moisture_mate(self, date: str, sample: Dict[str, Measurement]):
         for room, measurement in sample.items():
@@ -136,8 +134,8 @@ class SensorService:
         )
 
         await self.save_smart_thermo(date, new_sample)
-        # await self.send_moisture_mate(date, new_sample)
-        # await self.send_carbon_sense(date, new_sample)
+        await self.send_moisture_mate(date, new_sample)
+        await self.send_carbon_sense(date, new_sample)
 
     async def _send_request(self, url: str, data: dict):
         async with httpx.AsyncClient() as client:
@@ -163,3 +161,4 @@ class SensorService:
             del self.data[key]
 
         logger.info(f"Removed keys: {keys_to_remove}")
+
