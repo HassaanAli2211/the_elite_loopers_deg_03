@@ -4,9 +4,16 @@ import time
 from datetime import datetime
 import pandas as pd
 import logging
+from kafka import KafkaProducer
 
 logger = logging.getLogger()
 
+
+producer = KafkaProducer(
+    bootstrap_servers=["kafka:29092"],
+    acks=1,
+    value_serializer=lambda v: json.dumps(v, default=str).encode("utf-8")
+)
 
 s3_client = boto3.client("s3",
     endpoint_url="http://minio:9000",
@@ -33,6 +40,7 @@ def smartthermo():
                     if "Unnamed: 0" in i:
                         del i["Unnamed: 0"]
                         logger.info(i)
+                        producer.send("smartthermo", value=i)
                 got_date=date
         except Exception as e:
             logger.error(f"An error occured while processing data: {e}")
