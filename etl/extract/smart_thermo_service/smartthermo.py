@@ -4,23 +4,26 @@ import time
 from datetime import datetime
 import pandas as pd
 import logging
+import os
 
 logger = logging.getLogger()
 
+endpoint = os.environ.get("ENDPOINT_URL")
+access_key = os.environ.get("AWS_ACCESS_KEY_ID")
+secret_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
+bucket_name = os.environ.get("SMART_THERMO_BUCKET")
 
 s3_client = boto3.client("s3",
-    endpoint_url="http://minio:9000",
-    aws_access_key_id="minioadmin",
-    aws_secret_access_key="minioadmin"
+    endpoint_url=endpoint,
+    aws_access_key_id=access_key,
+    aws_secret_access_key=secret_key
 )
 
 def smartthermo():
-    logger.info("Initiating smartthermoo function")
     got_date=None
     while True:
         date = datetime.utcnow().replace(second=0, microsecond=0).isoformat()
-        
-        bucket = "smart-thermo-sensor"
+        bucket = bucket_name
         key = f"smart_thermo/{date}.csv"
         time.sleep(10)
         try:
@@ -37,9 +40,6 @@ def smartthermo():
         except Exception as e:
             logger.error(f"An error occured while processing data: {e}")
             pass
-
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     smartthermo()
-
-
