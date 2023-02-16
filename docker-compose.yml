@@ -1,11 +1,17 @@
 version: "3.9"
 services:
+  moisturecarbonservice:
+    build:
+      context: etl/extract/moisturecarbonservice
+    ports:
+      - "8000:8000"
+
   sensorsmock:
     build:
       context: sensors
     ports:
       - "3001:3001"
-    
+
     environment:
       - SMART_THERMO_BUCKET=smart-thermo1
       - MOISTURE_MATE_URL=http://producer_carbon_moisture:8000/api/moisturemate
@@ -13,7 +19,7 @@ services:
     restart: always
 
   producer_carbon_moisture:
-    build: 
+    build:
       context: etl/extract/moisturecarbonservice
     container_name: carbon_moisture
     ports:
@@ -23,7 +29,7 @@ services:
     depends_on:
       - kafka
       - sensorsmock
-    restart: always  
+    restart: always
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -31,8 +37,8 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     restart: always
-    
-  kafka: 
+
+  kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
     ports:
@@ -62,5 +68,3 @@ services:
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
       "
-      
-      
