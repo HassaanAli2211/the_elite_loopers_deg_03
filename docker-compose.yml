@@ -1,32 +1,70 @@
 version: "3.9"
 services:
   moisturecarbonservice:
-    build: 
+    build:
       context: etl/extract/moisturecarbonservice
     ports:
-      - "8000:8000" 
-  
+      - "8000:8000"
+
   sensorsmock:
     build:
       context: sensors
     ports:
-      - "3000:3000"
+      - "3001:3001"
+
     environment:
-      - SMART_THERMO_BUCKET=alybuckett
-      - MOISTURE_MATE_URL=http://moisturecarbonservice:8000/api/moisturemate
-      - CARBON_SENSE_URL=http://moisturecarbonservice/api/carbonsense
-      - AWS_ACCESS_KEY_ID=
-      - AWS_SECRET_ACCESS_KEY=
-          
-  lux_meter:
-    build: 
-      context: etl/extract/luxmeterservice
-    container_name: lux_meter
+      - SMART_THERMO_BUCKET=smart-thermo1
+      - MOISTURE_MATE_URL=http://producer_carbon_moisture:8000/api/moisturemate
+      - CARBON_SENSE_URL=http://producer_carbon_moisture:8000/api/carbonsense
+    restart: always
+
+  producer_carbon_moisture:
+    build:
+      context: etl/extract/moisturecarbonservice
+    container_name: carbon_moisture
     ports:
-      - "3007:3007"
+      - "8000:8000"
     environment:
-       - LUXMETER_URL=http://sensorsmock:3000/api/luxmeter/
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
     depends_on:
+      - kafka
       - sensorsmock
     restart: always
- 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    restart: always
+
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+  init-kafka:
+    image: confluentinc/cp-kafka:6.1.1
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic moisturemate --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic carbonsense --replication-factor 1 --partitions 1
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "
