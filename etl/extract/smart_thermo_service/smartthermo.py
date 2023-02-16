@@ -1,10 +1,7 @@
-import boto3
-import json
-import time
-from datetime import datetime
-import pandas as pd
 import logging
 import os
+import time
+import boto3
 
 logger = logging.getLogger()
 
@@ -13,33 +10,26 @@ access_key = os.environ.get("AWS_ACCESS_KEY_ID")
 secret_key = os.environ.get("AWS_SECRET_ACCESS_KEY")
 bucket_name = os.environ.get("SMART_THERMO_BUCKET")
 
-s3_client = boto3.client("s3",
+s3 = boto3.resource(
+    "s3",
     endpoint_url=endpoint,
     aws_access_key_id=access_key,
-    aws_secret_access_key=secret_key
+    aws_secret_access_key=secret_key,
 )
 
 def smartthermo():
-    got_date=None
-    while True:
-        date = datetime.utcnow().replace(second=0, microsecond=0).isoformat()
-        bucket = bucket_name
-        key = f"smart_thermo/{date}.csv"
-        time.sleep(10)
-        try:
-            if got_date != date:
-                obj = s3_client.get_object(Bucket=bucket, Key=key)
-                df = pd.read_csv(obj['Body'])
-                json_data = df.to_json(orient='records')
-                smart_data = json.loads(json_data)
-                for i in smart_data:
-                    if "Unnamed: 0" in i:
-                        del i["Unnamed: 0"]
-                        logger.info(i)
-                got_date=date
-        except Exception as e:
-            logger.error(f"An error occured while processing data: {e}")
-            pass
+    bucket = s3.Bucket(bucket_name)
+
+    objects = list(bucket.objects.all())
+    obj = list(filter(lambda o: o.key.endswith(".csv"), objects))[-1]
+    obj = s3.Object(bucket_name, obj.key)
+
+    csv_data = obj.get()['Body'].read().decode('utf-8')
+    logger.info(csv_data)
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    smartthermo()
+    while True:
+        smartthermo()
+        time.sleep(60)
+        
