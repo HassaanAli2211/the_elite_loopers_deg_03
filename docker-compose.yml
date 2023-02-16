@@ -29,8 +29,4 @@ services:
     depends_on:
       - sensorsmock
     restart: always
-
-
-
-
  
