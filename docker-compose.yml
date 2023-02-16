@@ -17,3 +17,16 @@ services:
       - CARBON_SENSE_URL=http://moisturecarbonservice/api/carbonsense
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
+          
+  lux_meter:
+    build: 
+      context: etl/extract/luxmeterservice
+    container_name: lux_meter
+    ports:
+      - "3007:3007"
+    environment:
+       - LUXMETER_URL=http://sensorsmock:3000/api/luxmeter/
+    depends_on:
+      - sensorsmock
+    restart: always
+ 
