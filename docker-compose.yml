@@ -2,7 +2,7 @@ version: "3.9"
 services:
   moisturecarbonservice:
     build: 
-      context: moisturecarbonservice
+      context: etl/extract/moisturecarbonservice
     ports:
       - "8000:8000" 
   
