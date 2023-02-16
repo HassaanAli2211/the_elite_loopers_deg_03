@@ -1,32 +1,63 @@
 version: "3.9"
 services:
   moisturecarbonservice:
-    build: 
+    build:
       context: etl/extract/moisturecarbonservice
+
+  minio:
+    image: minio/minio:latest
     ports:
-      - "8000:8000" 
-  
+      - "9000:9000"
+    volumes:
+      - ./datastore:/data
+    command: server /data
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc config; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor; exit 0; "
+
   sensorsmock:
     build:
       context: sensors
+    container_name: sensorsmock
     ports:
       - "3000:3000"
+    depends_on:
+      - minio
+      - createbuckets
     environment:
-      - SMART_THERMO_BUCKET=alybuckett
-      - MOISTURE_MATE_URL=http://moisturecarbonservice:8000/api/moisturemate
-      - CARBON_SENSE_URL=http://moisturecarbonservice/api/carbonsense
+      - SMART_THERMO_BUCKET=smart-thermo-sensor
+      - MOISTURE_MATE_URL=http://etlservice:8000/api/moisturemate
+      - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
-          
+
   lux_meter:
-    build: 
+    build:
       context: etl/extract/luxmeterservice
     container_name: lux_meter
     ports:
       - "3007:3007"
     environment:
-       - LUXMETER_URL=http://sensorsmock:3000/api/luxmeter/
+      - LUXMETER_URL=http://sensorsmock:3000/api/luxmeter/
     depends_on:
       - sensorsmock
     restart: always
- 
+
+  smart_thermo:
+    build:
+      context: etl/extract/smart_thermo_service
+    container_name: smart_thermo
+    depends_on:
+      - minio
+      - createbuckets
+      - sensorsmock
+    environment:
+      - ENDPOINT_URL=http://minio:9000
+      - SMART_THERMO_BUCKET=smart-thermo-sensor
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+    restart: always
