@@ -32,8 +32,8 @@ services:
       - SMART_THERMO_BUCKET=smart-thermo-sensor
       - MOISTURE_MATE_URL=http://etlservice:8000/api/moisturemate
       - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
-      - AWS_ACCESS_KEY_ID=minioadmin
-      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
 
   lux_meter:
     build:
@@ -54,8 +54,8 @@ services:
     environment:
       - ENDPOINT_URL=http://minio:9000
       - SMART_THERMO_BUCKET=smart-thermo-sensor
-      - AWS_ACCESS_KEY_ID=minioadmin
-      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
     depends_on:
       - kafka 

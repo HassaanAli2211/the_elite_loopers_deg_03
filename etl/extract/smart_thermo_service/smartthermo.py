@@ -1,8 +1,9 @@
+import json
 import logging
 import os
 import time
+
 import boto3
-import json
 from kafka import KafkaProducer
 
 logger = logging.getLogger()
@@ -15,7 +16,7 @@ kafka_bootstrap_server = os.environ.get("KAFKA_BOOTSTRAP_SERVER")
 
 producer = KafkaProducer(
     bootstrap_servers=kafka_bootstrap_server,
-    value_serializer=lambda v: json.dumps(v).encode("utf-8")
+    value_serializer=lambda v: json.dumps(v).encode("utf-8"),
 )
 
 s3 = boto3.resource(
@@ -32,7 +33,7 @@ def smartthermo():
     obj = list(filter(lambda o: o.key.endswith(".csv"), objects))[-1]
     obj = s3.Object(bucket_name, obj.key)
 
-    csv_data = obj.get()['Body'].read().decode('utf-8')
+    csv_data = obj.get()["Body"].read().decode("utf-8")
     logger.info(csv_data)
     producer.send("smartthermo", value=csv_data)
 
@@ -41,4 +42,3 @@ if __name__ == "__main__":
     while True:
         smartthermo()
         time.sleep(60)
-        
