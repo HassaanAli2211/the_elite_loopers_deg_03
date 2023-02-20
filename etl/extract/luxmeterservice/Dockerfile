@@ -1,4 +1,3 @@
-
 FROM python:3.10-slim-buster
 
 WORKDIR /app
@@ -9,8 +8,3 @@ COPY . .
 ENV PYTHONPATH /app
 
 CMD [ "python3", "luxmeter_service.py"]
-
-
-
-
-

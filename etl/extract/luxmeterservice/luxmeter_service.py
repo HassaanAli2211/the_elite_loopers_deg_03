@@ -30,9 +30,9 @@ async def lux_data():
         response = requests.get(url).json()
         last_measurement = response["measurements"][-1]
         final_data = {"room": room, "measurement": last_measurement}
-        logger.info("Received Luxmeter data", final_data)
+        logger.info(f"Received Luxmeter data: {final_data}")
         result = producer.send("luxmeter", value=final_data)
-        logger.info(f"Received {room}: {result}")
+        logger.info(f"Sent data to Kafka {room}: {result}")
 
 
 def run_app():
