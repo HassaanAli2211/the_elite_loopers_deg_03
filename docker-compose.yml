@@ -5,15 +5,7 @@ services:
     build:
       context: sensors
     ports:
-      - "3001:3001"
-   
-    environment:
-      - SMART_THERMO_BUCKET=smart-thermo1
-      - LUXMETER_URL=http://sensorsmock:3001/api/luxmeter
-      - MOISTURE_MATE_URL=http://producer_carbon_moisture:8000/api/moisturemate
-      - CARBON_SENSE_URL=http://producer_carbon_moisture:8000/api/carbonsense
-
-    restart: always
+      - "3000:3000"
 
   lux_meter:
     build: 
