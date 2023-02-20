@@ -34,8 +34,9 @@ def smartthermo():
     obj = s3.Object(bucket_name, obj.key)
 
     csv_data = obj.get()["Body"].read().decode("utf-8")
-    logger.info(csv_data)
-    producer.send("smartthermo", value=csv_data)
+    logger.info(f"SmartThermo data read from bucket: {csv_data}")
+    kafka_producer_response = producer.send("smartthermo", value=csv_data)
+    logger.info(f"SmartThermo data sent to Kafka: {kafka_producer_response}")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
