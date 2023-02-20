@@ -1,5 +1,9 @@
 version: "3.9"
 services:
+  moisturecarbonservice:
+    build:
+      context: etl/extract/moisturecarbonservice
+
   minio:
     image: minio/minio:latest
     ports:
@@ -13,13 +17,8 @@ services:
     depends_on:
       - minio
     entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc config;
-      /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin;
-      /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor;
-      exit 0;
-      "
-  
+      /bin/sh -c " /usr/bin/mc config; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor; exit 0; "
+
   sensorsmock:
     build:
       context: sensors
@@ -33,21 +32,37 @@ services:
       - SMART_THERMO_BUCKET=smart-thermo-sensor
       - MOISTURE_MATE_URL=http://etlservice:8000/api/moisturemate
       - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
-      - AWS_ACCESS_KEY_ID=minioadmin
-      - AWS_SECRET_ACCESS_KEY=minioadmin
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+
+  lux_meter:
+    build:
+      context: etl/extract/luxmeterservice
+    container_name: lux_meter
+    ports:
+      - "3007:3007"
+    environment:
+      - LUXMETER_URL=http://sensorsmock:3000/api/luxmeter/
+    depends_on:
+      - sensorsmock
+    restart: always
 
   smart_thermo:
     build:
-      context: smart_thermo_service
+      context: etl/extract/smart_thermo_service
     container_name: smart_thermo
     environment:
-       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+      - ENDPOINT_URL=http://minio:9000
+      - SMART_THERMO_BUCKET=smart-thermo-sensor
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
     depends_on:
       - kafka 
       - minio
       - createbuckets
       - sensorsmock
-    restart: always 
+    restart: always
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
