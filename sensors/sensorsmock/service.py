@@ -65,7 +65,12 @@ class SensorService:
             ]
         )
 
-        df.to_csv(f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv")
+        df.to_csv(
+            f"s3://{self._smart_thermo_bucket}/smart_thermo/{date}.csv",
+            storage_options={"client_kwargs": {"endpoint_url": "http://minio:9000"}},
+        )
+
+        logger.info(f"Smart_Thermo: {df} sent to Minio Bucket")
 
     async def send_moisture_mate(self, date: str, sample: Dict[str, Measurement]):
         for room, measurement in sample.items():

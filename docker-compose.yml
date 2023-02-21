@@ -1,11 +1,39 @@
 version: "3.9"
 services:
+  moisturecarbonservice:
+    build:
+      context: etl/extract/moisturecarbonservice
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./datastore:/data
+    command: server /data
+
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c " /usr/bin/mc config; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor; exit 0; "
 
   sensorsmock:
     build:
       context: sensors
+    container_name: sensorsmock
     ports:
       - "3000:3000"
+    depends_on:
+      - minio
+      - createbuckets
+    environment:
+      - SMART_THERMO_BUCKET=smart-thermo-sensor
+      - MOISTURE_MATE_URL=http://etlservice:8000/api/moisturemate
+      - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
 
   lux_meter:
     build: 
@@ -20,7 +48,24 @@ services:
       - kafka
       - sensorsmock 
     restart: always
-   
+
+  smart_thermo:
+    build:
+      context: etl/extract/smart_thermo_service
+    container_name: smart_thermo
+    environment:
+      - ENDPOINT_URL=http://minio:9000
+      - SMART_THERMO_BUCKET=smart-thermo-sensor
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+    depends_on:
+      - kafka 
+      - minio
+      - createbuckets
+      - sensorsmock
+    restart: always
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -56,8 +101,6 @@ services:
       # blocks until kafka is reachable
       kafka-topics --bootstrap-server kafka:29092 --list
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic moisturemate --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic carbonsense --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic luxmeter --replication-factor 1 --partitions 1
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
