@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import time
+
 import boto3
 from kafka import KafkaProducer
 
@@ -37,7 +38,6 @@ def smartthermo():
     logger.info(f"SmartThermo data read from bucket: {csv_data}")
     kafka_producer_response = producer.send("smartthermo", value=csv_data)
     logger.info(f"SmartThermo data sent to Kafka: {kafka_producer_response}")
-
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
