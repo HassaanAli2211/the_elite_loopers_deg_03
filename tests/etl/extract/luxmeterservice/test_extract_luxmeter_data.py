@@ -1,13 +1,14 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-
 from the_elite_loopers_deg_03.etl.extract.luxmeterservice import luxmeter_service
 
 room_ids = ["kitchen", "bedroom", "bathroom", "living_room"]
 
 
-@patch("the_elite_loopers_deg_03.etl.extract.luxmeterservice.luxmeter_service.requests.get")
+@patch(
+    "the_elite_loopers_deg_03.etl.extract.luxmeterservice.luxmeter_service.requests.get"
+)
 class TestExample(TestCase):
     def test_get_lux_data_gets_one_measurement_logs_response(self, mock_request_get):
         mock_response = Mock()
