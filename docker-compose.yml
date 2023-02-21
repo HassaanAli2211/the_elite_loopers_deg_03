@@ -1,7 +1,5 @@
 version: "3.9"
 services:
-<<<<<<< HEAD
-=======
   moisturecarbonservice:
     build:
       context: etl/extract/moisturecarbonservice
@@ -21,34 +19,11 @@ services:
     entrypoint: >
       /bin/sh -c " /usr/bin/mc config; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor; exit 0; "
 
->>>>>>> main
   sensorsmock:
     build:
       context: sensors
     container_name: sensorsmock
     ports:
-<<<<<<< HEAD
-      - "3001:3001"
-    
-    environment:
-      - SMART_THERMO_BUCKET=smart-thermo1
-      - MOISTURE_MATE_URL=http://producer_carbon_moisture:8000/api/moisturemate
-      - CARBON_SENSE_URL=http://producer_carbon_moisture:8000/api/carbonsense
-    restart: always
-
-  producer_carbon_moisture:
-    build: 
-      context: etl/extract/moisturecarbonservice/producer_carbon_moisture
-    container_name: carbon_moisture
-    ports:
-      - "8000:8000"
-    environment:
-      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
-    depends_on:
-      - kafka
-      - sensorsmock
-    restart: always  
-=======
       - "3000:3000"
     depends_on:
       - minio
@@ -89,21 +64,14 @@ services:
       - sensorsmock
     restart: always
 
->>>>>>> main
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-<<<<<<< HEAD
-    restart: always
-    
-  kafka: 
-=======
 
   kafka:
->>>>>>> main
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
     ports:
@@ -117,35 +85,5 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-<<<<<<< HEAD
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
-  init-kafka:
-    image: confluentinc/cp-kafka:6.1.1
-    depends_on:
-      - kafka
-    entrypoint: [ '/bin/sh', '-c' ]
-    command: |
-      "
-      # blocks until kafka is reachable
-      kafka-topics --bootstrap-server kafka:29092 --list
-      echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic moisturemate --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic carbonsense --replication-factor 1 --partitions 1
-      echo -e 'Successfully created the following topics:'
-      kafka-topics --bootstrap-server kafka:29092 --list
-      "
-  pyspark:
-    image: jupyter/pyspark-notebook
-    environment:
-      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
-    depends_on:
-      - kafka
-    ports:
-      - "8888:8888"
-    volumes:
-      - ./:/home/jovyan/work/app    
-      
-=======
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
     restart: always
->>>>>>> main
