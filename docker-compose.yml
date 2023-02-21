@@ -37,7 +37,7 @@ services:
 
   lux_meter:
     build: 
-      context: luxmeterservice
+      context: etl/extract/luxmeterservice
     container_name: lux_meter
     ports:
       - "3007:3007"

@@ -5,7 +5,6 @@ import pandas as pd
 
 from model import train_model
 
-
 logging.basicConfig(level=logging.INFO)
 
 
