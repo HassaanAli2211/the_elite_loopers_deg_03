@@ -26,6 +26,7 @@ s3 = boto3.resource(
     aws_secret_access_key=secret_key,
 )
 
+
 def smartthermo():
     bucket = s3.Bucket(bucket_name)
 
@@ -37,6 +38,7 @@ def smartthermo():
     logger.info(f"SmartThermo data read from bucket: {csv_data}")
     kafka_producer_response = producer.send("smartthermo", value=csv_data)
     logger.info(f"SmartThermo data sent to Kafka: {kafka_producer_response}")
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
