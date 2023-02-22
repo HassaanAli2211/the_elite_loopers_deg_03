@@ -1,78 +1,50 @@
 version: "3.9"
 services:
+  moisturecarbonservice:
+    build:
+      context: etl/extract/moisturecarbonservice​
   minio:
     image: minio/minio:latest
     ports:
       - "9000:9000"
     volumes:
       - ./datastore:/data
-    environment:
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
     command: server /data
-  createbuckets:
+​  createbuckets:
     image: minio/mc
     depends_on:
       - minio
     entrypoint: >
-      /bin/sh -c "
-      /usr/bin/mc config;
-      /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin;
-      /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor;
-      exit 0;
-      "
+      /bin/sh -c " /usr/bin/mc config; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor; exit 0; "   
   sensorsmock:
     build:
       context: sensors
     container_name: sensorsmock
     ports:
-      - "3001:3001"
+      - "3000:3000"
     depends_on:
       - minio
       - createbuckets
     environment:
       - SMART_THERMO_BUCKET=smart-thermo-sensor
-      - MOISTURE_MATE_URL=http://producer_carbon_moisture:8000/api/moisturemate
-      - CARBON_SENSE_URL=http://producer_carbon_moisture:8000/api/carbonsense
-      - AWS_ACCESS_KEY_ID=minioadmin
-      - AWS_SECRET_ACCESS_KEY=minioadmin
-  smart_thermo:
-    build:
-      context: smart_thermo_service
-    container_name: smart_thermo
-    environment:
-       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
-    depends_on:
-      - kafka
-      - minio
-      - createbuckets
-      - sensorsmock
-    restart: always
-  producer_carbon_moisture:
-    build:
-      context: producer_carbon_moisture
-    container_name: carbon_moisture
-    ports:
-      - "8000:8000"
-    environment:
-      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
-    depends_on:
-      - kafka
-      - sensorsmock
-    restart: always
-lux_meter:
-    build:
-      context: luxmeterservice
+      - MOISTURE_MATE_URL=http://etlservice:8000/api/moisturemate
+      - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
+      - AWS_ACCESS_KEY_ID=
+      - AWS_SECRET_ACCESS_KEY=
+​    lux_meter:
+    build: 
+      context: etl/extract/luxmeterservice
     container_name: lux_meter
     ports:
       - "3007:3007"
     environment:
-      - LUXMETER_URL=http://sensorsmock:3001/api/luxmeter/
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+      - LUXMETER_URL=http://sensorsmock:3000/api/luxmeter/
     depends_on:
-      - sensorsmock
+      - kafka
+      - sensorsmock 
     restart: always
-smart_thermo:
+​  smart_thermo:
     build:
       context: etl/extract/smart_thermo_service
     container_name: smart_thermo
@@ -88,9 +60,9 @@ smart_thermo:
       - createbuckets
       - sensorsmock
     restart: always
-pyspark:
+  pyspark:
     build:
-      context: Transformation
+      context: etl/transformation/transformation
     container_name: pyspark
     environment:
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
@@ -98,16 +70,16 @@ pyspark:
       - kafka
     ports:
       - "8888:8888"
-​machinelearning:
+  ​machinelearning:
     build:
-      context: ml_model
+      context: etl/load/ml_model
     container_name: ml
     environment:
       - KAFKA_BOOTSTRAP_SERVER=kafka:29092
     depends_on:
       - kafka
     restart: always
-zookeeper:
+  zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
     environment:
@@ -115,7 +87,7 @@ zookeeper:
       ZOOKEEPER_TICK_TIME: 2000
     restart: always
     
-kafka:
+  kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
     ports:
@@ -129,10 +101,8 @@ kafka:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
-      
-      
-init-kafka:
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3   
+  init-kafka:
     image: confluentinc/cp-kafka:6.1.1
     depends_on:
       - kafka
