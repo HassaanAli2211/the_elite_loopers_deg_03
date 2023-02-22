@@ -31,7 +31,7 @@ async def startup():
 
 def run_app():
     logging.basicConfig(level=logging.INFO)
-    uvicorn.run(app, host="0.0.0.0", port=3000)
+    uvicorn.run(app, host="0.0.0.0", port=3001)
 
 
 if __name__ == "__main__":
