@@ -3,7 +3,7 @@ services:
   moisturecarbonservice:
     build:
       context: etl/extract/moisturecarbonservice
-
+​
   minio:
     image: minio/minio:latest
     ports:
@@ -11,14 +11,14 @@ services:
     volumes:
       - ./datastore:/data
     command: server /data
-
+​
   createbuckets:
     image: minio/mc
     depends_on:
       - minio
     entrypoint: >
       /bin/sh -c " /usr/bin/mc config; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor; exit 0; "
-
+​
   sensorsmock:
     build:
       context: sensors
@@ -34,7 +34,7 @@ services:
       - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
-
+​
   lux_meter:
     build: 
       context: etl/extract/luxmeterservice
@@ -48,7 +48,7 @@ services:
       - kafka
       - sensorsmock 
     restart: always
-
+​
   smart_thermo:
     build:
       context: etl/extract/smart_thermo_service
@@ -65,7 +65,7 @@ services:
       - createbuckets
       - sensorsmock
     restart: always
-
+​
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -75,6 +75,8 @@ services:
     restart: always
     
   kafka: 
+
+  kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
     ports:
