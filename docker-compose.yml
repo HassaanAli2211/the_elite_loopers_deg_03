@@ -2,8 +2,7 @@ version: "3.9"
 services:
   moisturecarbonservice:
     build:
-      context: etl/extract/moisturecarbonservice
-​
+      context: etl/extract/moisturecarbonservice​
   minio:
     image: minio/minio:latest
     ports:
@@ -11,14 +10,12 @@ services:
     volumes:
       - ./datastore:/data
     command: server /data
-​
-  createbuckets:
+​  createbuckets:
     image: minio/mc
     depends_on:
       - minio
     entrypoint: >
-      /bin/sh -c " /usr/bin/mc config; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor; exit 0; "
-​
+      /bin/sh -c " /usr/bin/mc config; /usr/bin/mc config host add myminio http://minio:9000 minioadmin minioadmin; /usr/bin/mc mb --ignore-existing myminio/smart-thermo-sensor; exit 0; "   
   sensorsmock:
     build:
       context: sensors
@@ -34,8 +31,7 @@ services:
       - CARBON_SENSE_URL=http://etlservice:8000/api/carbonsense
       - AWS_ACCESS_KEY_ID=
       - AWS_SECRET_ACCESS_KEY=
-​
-  lux_meter:
+​    lux_meter:
     build: 
       context: etl/extract/luxmeterservice
     container_name: lux_meter
@@ -48,8 +44,7 @@ services:
       - kafka
       - sensorsmock 
     restart: always
-​
-  smart_thermo:
+​  smart_thermo:
     build:
       context: etl/extract/smart_thermo_service
     container_name: smart_thermo
@@ -65,7 +60,25 @@ services:
       - createbuckets
       - sensorsmock
     restart: always
-​
+  pyspark:
+    build:
+      context: etl/transformation/transformation
+    container_name: pyspark
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+    depends_on:
+      - kafka
+    ports:
+      - "8888:8888"
+  ​machinelearning:
+    build:
+      context: etl/load/ml_model
+    container_name: ml
+    environment:
+      - KAFKA_BOOTSTRAP_SERVER=kafka:29092
+    depends_on:
+      - kafka
+    restart: always
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
     container_name: zookeeper
@@ -74,8 +87,6 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     restart: always
     
-  kafka: 
-
   kafka:
     image: confluentinc/cp-kafka:7.0.1
     container_name: kafka
@@ -90,9 +101,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
-      
-      
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3   
   init-kafka:
     image: confluentinc/cp-kafka:6.1.1
     depends_on:
@@ -103,7 +112,11 @@ services:
       # blocks until kafka is reachable
       kafka-topics --bootstrap-server kafka:29092 --list
       echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic moisturemate --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic carbonsense --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic luxmeter --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic smartthermo --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic updated-data --replication-factor 1 --partitions 1
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
       "
